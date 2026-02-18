@@ -1,10 +1,10 @@
 import 'package:flick_video_player/src/utils/web_key_bindings.dart';
-import 'package:universal_html/html.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
+import 'package:web/web.dart' as web;
 
 class FlickVideoPlayer extends StatefulWidget {
   const FlickVideoPlayer({
@@ -62,7 +62,7 @@ class FlickVideoPlayer extends StatefulWidget {
   final bool wakelockEnabledFullscreen;
 
   /// Callback called on keyDown for web, used for keyboard shortcuts.
-  final Function(KeyboardEvent, FlickManager) webKeyDownHandler;
+  final Function(web.KeyboardEvent, FlickManager) webKeyDownHandler;
 
   @override
   _FlickVideoPlayerState createState() => _FlickVideoPlayerState();
@@ -100,9 +100,9 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer>
     }
 
     if (kIsWeb) {
-      document.documentElement?.onFullscreenChange
+      web.document.documentElement?.onFullscreenChange
           .listen(_webFullscreenListener);
-      document.documentElement?.onKeyDown.listen(_webKeyListener);
+      web.document.documentElement?.onKeyDown.listen(_webKeyListener);
     }
   }
 
@@ -147,7 +147,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer>
     _setPreferredOrientation();
     _setSystemUIOverlays();
     if (kIsWeb) {
-      document.documentElement?.requestFullscreen();
+      web.document.documentElement?.requestFullscreen();
       Future.delayed(Duration(milliseconds: 100), () {
         _videoHeight = MediaQuery.of(context).size.height;
         _videoWidth = MediaQuery.of(context).size.width;
@@ -178,7 +178,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer>
     _isFullscreen = false;
 
     if (kIsWeb) {
-      document.exitFullscreen();
+      web.document.exitFullscreen();
       _videoHeight = null;
       _videoWidth = null;
       setState(() {});
@@ -212,8 +212,9 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer>
     }
   }
 
-  void _webFullscreenListener(Event event) {
-    final isFullscreen = (window.screenTop == 0 && window.screenY == 0);
+  void _webFullscreenListener(web.Event event) {
+    final w = web.document.defaultView;
+    final isFullscreen = (w != null && w.screenTop == 0 && w.screenY == 0);
     if (isFullscreen && !flickManager.flickControlManager!.isFullscreen) {
       flickManager.flickControlManager!.enterFullscreen();
     } else if (!isFullscreen &&
@@ -222,7 +223,7 @@ class _FlickVideoPlayerState extends State<FlickVideoPlayer>
     }
   }
 
-  void _webKeyListener(KeyboardEvent event) {
+  void _webKeyListener(web.KeyboardEvent event) {
     widget.webKeyDownHandler(event, flickManager);
   }
 

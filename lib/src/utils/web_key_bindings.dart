@@ -1,8 +1,8 @@
 import 'package:flick_video_player/src/manager/flick_manager.dart';
-import 'package:universal_html/html.dart';
+import 'package:web/web.dart' as web;
 
 void flickDefaultWebKeyDownHandler(
-    KeyboardEvent event, FlickManager flickManager) {
+    web.KeyboardEvent event, FlickManager flickManager) {
   if (event.keyCode == 70) {
     flickManager.flickControlManager?.toggleFullscreen();
     flickManager.flickDisplayManager?.handleShowPlayerControls();
